@@ -10,23 +10,6 @@
   (defn request-id []
     (swap! request-ids inc)))
 
-(extend-type goog.net.XhrManager
-  
-  event/EventType
-  (event-types [this]
-    (into {}
-          (map
-           (fn [[k v]]
-             [(keyword (. k (toLowerCase)))
-              v])
-           (js->clj goog.net.EventType)))))
-
-(defn- map->js [m]
-  (let [out (js-obj)]
-    (doseq [[k v] m]
-      (aset out (name k) v))
-    out))
-
 (def ^:private *xhr-manager*
      (goog.net.XhrManager. nil
                            nil
@@ -53,7 +36,7 @@
            url
            "POST"
            (pr-str {:method str-func :params params})
-           (map->js {"Content-type" "application/clojure;charset=utf-8" })
+           (.-strobj {"Content-type" "application/clojure;charset=utf-8" })
            nil
            nil
            0))
