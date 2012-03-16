@@ -41,10 +41,9 @@
                   :event  e}]
     (if (success? response)
       (let [data (reader/read-string (:body response))]
-        (.log js/console "handle-response success " is-multi)
         (if is-multi 
-          (do (.log js/console "invoke doall") (doall (map on-success data)))
-          (do (.log js/console "single call" on-success) (on-success data))))
+          (doall (map on-success data))
+          (on-success data)))
       (on-error response))))
 
 (defn invoke-api

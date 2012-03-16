@@ -8,14 +8,11 @@
 (def api-data (atom {}))
 
 (defn fill-in-api [url data]
-  (.log js/console "fill-in-api : " url)
-  (swap! api-data assoc url data)
-  (let [p (domina/by-id "j_docList")
-        node (.createTextNode js/document "hello")]
-    (.log js/console p "hello")
-    (domina/append! p node)
-    (doall
-     (map (fn [d] (domina/append! p (.createTextNode js/document (get d :name)))) data) )))
+  (let [data (sort-by :name data)]
+    (swap! api-data assoc url data)
+    (let [p (domina/by-id "j_docList")]
+      (doall
+       (map #(domina/append! p (str "<li><a>" (:name %) "</a></li>")) data) ))))
 
 (defn error [data]
   (js/alert data))
