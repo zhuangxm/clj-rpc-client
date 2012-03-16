@@ -12,36 +12,70 @@
 
 (def ^:private *xhr-manager*
      (goog.net.XhrManager. nil
-                           nil
+                           (.-strobj {"Content-type" "application/clojure;charset=utf-8" })
                            nil
                            0
                            30000))
 
-(defn success [e]
-  (.log js/console "Complete : " e))
+(defn success?
+  [{status :status}]
+  (= status 200))
 
-(defn error [e]
-  (.log js/console "Error1 : " e))
+(defn create-invoke-request
+  "create invoke request"
+  [str-func params id]
+  (let [id (or id str-func)]
+    [str-func params id]))
 
-(event/listen *xhr-manager* gevent-type/SUCCESS
-              success)
+(defn- gen-invoke-map
+  "generate actual invoke requst map"
+  [invoke-request]
+  {:method (first invoke-request)
+                  :params (nth invoke-request 1)
+                  :id (nth invoke-request 2)})
 
-(event/listen *xhr-manager* gevent-type/ERROR
-              error)
+(defn- handle-response
+  [is-multi on-success on-error e]
+  (let [response {:body   (. e/currentTarget (getResponseText))
+                  :status (. e/currentTarget (getStatus))
+                  :event  e}]
+    (if (success? response)
+      (let [data (reader/read-string (:body response))]
+        (.log js/console "handle-response success " is-multi)
+        (if is-multi 
+          (do (.log js/console "invoke doall") (doall (map on-success data)))
+          (do (.log js/console "single call" on-success) (on-success data))))
+      (on-error response))))
 
 (defn invoke-api
-  [url str-func params]
-  (.send *xhr-manager*
-           (request-id)
-           url
-           "POST"
-           (pr-str {:method str-func :params params})
-           (.-strobj {"Content-type" "application/clojure;charset=utf-8" })
-           nil
-           nil
-           0))
+  "invoke remote clj-rpc service"
+  [url on-success on-error invoke-request & other-reuqests]
+  (let [invoke-requests (cons invoke-request other-requests)
+        invoke-requests (map gen-invoke-map invoke-requests)]
+    (.send *xhr-manager* (request-id) url "POST"
+           (pr-str invoke-requests)
+           nil nil (partial handle-response true on-success on-error)
+           0)))
 
-(.log js/console (invoke-api "http://localhost:9876/clj/invoke" "str" ["hello" "world"]))
+(defn get-api-help
+  "get remote clj-rpc service help doc"
+  [url on-success on-error]
+  (.send *xhr-manager* (request-id) url "POST"
+         nil nil nil (partial handle-response false on-success on-error)
+         0))
+
+(comment 
+  (defn prn-result-log
+    [data]
+    (.log js/console data))
+
+  (invoke-api "http://localhost:9876/clj/invoke"
+              prn-result-log
+              prn-result-log
+              (create-invoke-request "str" ["hello" "world"]))
+
+  (get-api-help "http://localhost:9876/clj/help"
+                prn-result-log prn-result-log))
 
 
 

@@ -4,13 +4,15 @@
                  [org.clojure/clojurescript "0.0-993"]
                  [org.mozilla/rhino "1.7R3"]
                  [com.google.javascript/closure-compiler "r1810"]
-                 [org.clojure/google-closure-library "0.0-790"]]
+                 [org.clojure/google-closure-library "0.0-790"]
+                 [domina "1.0.0-alpha2"]
+                 [clj-rpc "0.2.3"]]
   :repl-init clj-rpc.repl
   :source-path "src/clj"
   :cljsbuild
   {:builds
    [{:source-path "src/cljs",
      :compiler
-     {:output-to "public/main.js",
+     {:output-to "public/js/main.js",
       :optimizations :whitespace,
       :pretty-print true}}]})
