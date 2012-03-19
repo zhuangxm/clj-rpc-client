@@ -117,7 +117,7 @@ ul,li{
 	border-bottom:1px solid #DFDFDF;
 	text-shadow: white 0 1px 0;
 	box-shadow: 0 1px 0 #fff;
-	background:url(/img/tip-bg.gif) left top repeat-x;
+	background:url(../img/tip-bg.gif) left top repeat-x;
 }
 .tip h2{
 	font-size:14px;
