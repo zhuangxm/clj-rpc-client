@@ -53,8 +53,14 @@ ul,li{
 	z-index:5;
 }
 .m-top h2{
-	font-size:14px;
-	line-height:30px;
+   float:left;
+   width:90px;
+   font-size:14px;
+   line-height:30px;
+}
+.m-top input{
+   float:right;
+   width:91px;
 }
 .m-list{
 	position:absolute;
