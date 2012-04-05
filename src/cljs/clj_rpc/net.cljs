@@ -48,7 +48,7 @@
 
 (defn invoke-api
   "invoke remote clj-rpc service"
-  [url on-success on-error invoke-request & other-reuqests]
+  [url on-success on-error invoke-request & other-requests]
   (let [invoke-requests (cons invoke-request other-requests)
         invoke-requests (map gen-invoke-map invoke-requests)]
     (.send *xhr-manager* (request-id) url "POST"
